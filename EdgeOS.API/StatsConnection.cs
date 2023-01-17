@@ -4,6 +4,7 @@ using EdgeOS.API.Types.Subscription.Responses;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -89,6 +90,8 @@ namespace EdgeOS.API
         /// <param name="uri">The requested WebSocket Uri to connect to.</param>
         public async void ConnectAsync(Uri uri)
         {
+            _clientWebSocket.Options.SetRequestHeader("Origin", "https://" + uri.Host);
+
             // Raise an event.
             ConnectionStatusChanged?.Invoke(this, ConnectionStatus.Connecting);
 
