@@ -16,7 +16,7 @@ namespace WebClientDemo
         static void Main()
         {
             // Set the window title to something a bit more interesting.
-            if (!Console.IsOutputRedirected) { Console.Title = "WebClient Demo V0.1"; }
+            if (!Console.IsOutputRedirected) { Console.Title = "EdgeOSApiClient Demo V0.1"; }
 
             Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             var config = Configuration.GetSection("EdgeOSApiCredentials");
@@ -31,7 +31,7 @@ namespace WebClientDemo
             }
 
             // EdgeOS requires logins and session heartbeats to be sent via the REST API.
-            WebClient webClient = new WebClient("https://" + config["Host"] + "/");
+            EdgeOSApiClient webClient = new EdgeOSApiClient("https://" + config["Host"] + "/");
 
             // Ignore TLS certificate errors if there is a ".crt" file present that matches this host.
             webClient.AllowLocalCertificates();
@@ -63,7 +63,7 @@ namespace WebClientDemo
             webClient.Logout();
         }
 
-        private static void EdgeGeneralTests(WebClient webClient)
+        private static void EdgeGeneralTests(EdgeOSApiClient webClient)
         {
             // Test the Authenticate method.
             AuthenticateResponse authenticateResponse = webClient.Authenticate(ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"]);
@@ -137,7 +137,7 @@ namespace WebClientDemo
             //TODO: Wizard Setup.
         }
 
-        private static void EdgeConfigurationTests(WebClient webClient)
+        private static void EdgeConfigurationTests(EdgeOSApiClient webClient)
         {
             // Download the configuration.
             File.Delete("Config.tar.gz");
@@ -148,14 +148,14 @@ namespace WebClientDemo
             ConfigurationResponse configurationRestoreResponse = webClient.ConfigurationRestore("Config.tar.gz");
         }
 
-        private static void EdgeONUTests(WebClient webClient)
+        private static void EdgeONUTests(EdgeOSApiClient webClient)
         {
             ONURebootResponse onuRebootResponse = webClient.ONUReboot("000000000000");
 
             //TODO: ONU Upgrade.
         }
 
-        private static void EdgeOperationsTests(WebClient webClient)
+        private static void EdgeOperationsTests(EdgeOSApiClient webClient)
         {
             // Test operations.
             OperationResponse operationCheckForFirmwareUpdatesResponse = webClient.OperationCheckForFirmwareUpdates();
@@ -178,12 +178,12 @@ namespace WebClientDemo
             OperationResponse operationResetDefaultConfigurationResponse = webClient.OperationResetDefaultConfiguration();
         }
 
-        private static void OLTGeneralTests(WebClient webClient)
+        private static void OLTGeneralTests(EdgeOSApiClient webClient)
         {
             OperationResponse oltConnectedDevicesResponse = webClient.OLTConnectedONUDevices("000000000000");
         }
 
-        private static void OLTConnectedONUTests(WebClient webClient)
+        private static void OLTConnectedONUTests(EdgeOSApiClient webClient)
         {
             OperationSupportFileDownloadPrepareResponse operationSupportFileDownloadPrepareResponse = webClient.OLTConnectedONUSupportFileDownloadPrepare("000000000000");
             webClient.OLTConnectedONUSupportFileDownload(operationSupportFileDownloadPrepareResponse.Operation.Path, "SupportFile.tar.gz");

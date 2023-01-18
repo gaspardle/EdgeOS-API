@@ -39,8 +39,8 @@ namespace LogFeed
                 Environment.Exit(1610);
             }
 
-            // The WebClient allows us to get a valid SessionID to then use with the StatsConnection.
-            using (WebClient webClient = new WebClient("https://" + config["Host"] + "/"))
+            // The EdgeOSApiClient allows us to get a valid SessionID to then use with the StatsConnection.
+            using (EdgeOSApiClient webClient = new EdgeOSApiClient("https://" + config["Host"] + "/"))
             {
                 // This method will be invoked each time the timer has elapsed.
                 sessionHeartbeatTimer.Elapsed += (s, a) => webClient.Heartbeat();

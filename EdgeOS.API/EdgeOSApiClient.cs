@@ -12,7 +12,7 @@ using System.Text;
 namespace EdgeOS.API
 {
     /// <summary>Provides an API into EdgeOS based off the official API.</summary>
-    public class WebClient : IDisposable
+    public class EdgeOSApiClient : IDisposable
     {
         /// <summary>The EdgeOS SessionID returned after logging in.</summary>
         public string SessionID;
@@ -25,7 +25,7 @@ namespace EdgeOS.API
 
         /// <summary>Creates an instance of the WebClient which can be used to call EdgeOS API methods.</summary>
         /// <param name="host">The EdgeOS hostname this instance will contact.</param>
-        public WebClient(string host)
+        public EdgeOSApiClient(string host)
         {
             // Prevent .NET from consuming the HTTP 303 that contains our session tokens.
             _httpClient = new HttpClient(new HttpClientHandler() { AllowAutoRedirect = false, CookieContainer = new CookieContainer() })

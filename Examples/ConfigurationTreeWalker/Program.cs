@@ -33,7 +33,7 @@ namespace ConfigurationTreeWalker
             }
 
             // EdgeOS requires logins and session heartbeats to be sent via the REST API.
-            using (WebClient webClient = new WebClient("https://" + config["Host"] + "/"))
+            using (EdgeOSApiClient webClient = new EdgeOSApiClient("https://" + config["Host"] + "/"))
             {
                 // Ignore TLS certificate errors if there is a ".crt" file present that matches this host.
                 webClient.AllowLocalCertificates();
@@ -81,7 +81,7 @@ namespace EdgeOS.API.Types.Configuration
 }");
         }
 
-        private static void CreateClass(WebClient webClient, string[] startKey)
+        private static void CreateClass(EdgeOSApiClient webClient, string[] startKey)
         {
             // Get the tree.
             ConfigurationSettingsGetTreeResponse configurationSettingsGetTreeResponse = webClient.ConfigurationSettingsGetTree(startKey);

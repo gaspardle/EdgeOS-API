@@ -18,7 +18,7 @@ namespace InterfacesChart
         private IConfiguration Configuration;
 
         // EdgeOS requires logins and session heartbeats to be sent via the REST API.
-        private WebClient webClient;
+        private EdgeOSApiClient webClient;
 
         // EdgeOS requires the session to be renewed or it will expire (we renew every 30s)
         private readonly System.Timers.Timer sessionHeartbeatTimer = new System.Timers.Timer(30000);
@@ -88,7 +88,7 @@ namespace InterfacesChart
             sessionHeartbeatTimer.Elapsed += (s, a) => webClient.Heartbeat();
 
             // The WebClient allows us to get a valid SessionID to then use with the StatsConnection.
-            webClient = new WebClient("https://" + config["Host"] + "/");
+            webClient = new EdgeOSApiClient("https://" + config["Host"] + "/");
 
             // Ignore TLS certificate errors if there is a ".crt" file present that matches this host.
             webClient.AllowLocalCertificates();
