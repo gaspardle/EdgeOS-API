@@ -65,8 +65,9 @@ namespace WebClientDemo
 
         private static void EdgeGeneralTests(EdgeOSApiClient webClient)
         {
+            var config = Configuration.GetSection("EdgeOSApiCredentials");
             // Test the Authenticate method.
-            AuthenticateResponse authenticateResponse = webClient.Authenticate(ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"]);
+            AuthenticateResponse authenticateResponse = webClient.Authenticate(config["Username"], config["Password"]);
 
             EdgeOS.API.Types.Configuration.Configuration exampleConfiguration = new EdgeOS.API.Types.Configuration.Configuration()
             {
