@@ -37,9 +37,19 @@ namespace EdgeOS.API
 
             // Be a good net citizen and reveal who we are.
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "C#-EdgeOS-API");
+            _httpClient.DefaultRequestHeaders.ExpectContinue = false;
 
             // Error if a field is missing in a C# class.
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings { MissingMemberHandling = MissingMemberHandling.Error };
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings { 
+                MissingMemberHandling = MissingMemberHandling.Error,
+                Error = OnSerializerError
+            };
+        }
+
+        private void OnSerializerError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            Console.WriteLine("Unable to find member '{0}' on object of type {1}", e.ErrorContext.Member, e.ErrorContext.OriginalObject.GetType().Name);
+            e.ErrorContext.Handled = true;
         }
 
         /// <summary>Allows a local .crt certificate file to be used to validate a host.</summary>
@@ -162,7 +172,7 @@ namespace EdgeOS.API
         public ConfigurationSettingsBatchResponse ConfigurationSettingsBatch(ConfigurationSettingsBatchRequest batchRequest)
         {
             // Serialize our concrete class into a JSON String.
-            string requestContent = JsonConvert.SerializeObject(batchRequest, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            string requestContent = JsonConvert.SerializeObject(batchRequest, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore });
 
             // We build up our request.
             HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/edge/batch.json") { Content = new StringContent(requestContent, Encoding.UTF8, "application/json") };
@@ -197,7 +207,7 @@ namespace EdgeOS.API
         public ConfigurationSettingsDeleteResponse ConfigurationSettingsDelete(Configuration deleteRequest)
         {
             // Serialize our concrete class into a JSON String.
-            string requestContent = JsonConvert.SerializeObject(deleteRequest, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            string requestContent = JsonConvert.SerializeObject(deleteRequest, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore });
 
             // We build up our request.
             HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/edge/delete.json") { Content = new StringContent(requestContent, Encoding.UTF8, "application/json") };
@@ -327,7 +337,7 @@ namespace EdgeOS.API
         public ConfigurationSettingsSetResponse ConfigurationSettingsSet(Configuration setRequest)
         {
             // Serialize our concrete class into a JSON String.
-            string requestContent = JsonConvert.SerializeObject(setRequest, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            string requestContent = JsonConvert.SerializeObject(setRequest, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore });
 
             // We build up our request.
             HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/edge/set.json") { Content = new StringContent(requestContent, Encoding.UTF8, "application/json") };

@@ -21,9 +21,17 @@ namespace EdgeOS.API.Types.REST
             [JsonProperty(PropertyName = "name")]
             public Dictionary<string, DataFirewallRuleStatistics[]>[] Name;
 
+            /// <summary>An array of dictionary items that contains each of the IPv4 modify rulesets and their rule statistics.</summary>
+            [JsonProperty(PropertyName = "modify")]
+            public Dictionary<string, DataFirewallRuleStatistics[]>[] Modify;
+
             /// <summary>An array of dictionary items that contains each of the IPv6 firewall rulesets and their rule statistics.</summary>
             [JsonProperty(PropertyName = "ipv6-name")]
             public Dictionary<string, DataFirewallRuleStatistics[]>[] IPv6Name;
+
+            /// <summary>An array of dictionary items that contains each of the IPv6 modify rulesets and their rule statistics.</summary>
+            [JsonProperty(PropertyName = "ipv6-modify")]
+            public Dictionary<string, DataFirewallRuleStatistics[]>[] IPv6Modify;
 
             /// <summary>Outputs a human friendly readable form of the fields and their relations contained in this object.</summary>
             /// <returns>A string showing the relation between all the fields in a human friendly readable format.</returns>
@@ -41,11 +49,15 @@ namespace EdgeOS.API.Types.REST
 
                 /// <summary>The number of packets that this firewall rule has matched.</summary>
                 [JsonProperty(PropertyName = "pkts")]
-                public uint Packets;
+                public ulong Packets;
 
                 /// <summary>The number of bytes that this firewall rule has matched.</summary>
                 [JsonProperty(PropertyName = "bytes")]
-                public uint Bytes;
+                public ulong Bytes;
+
+                /// <summary>Rule is disabled?</summary>
+                [JsonProperty(PropertyName = "disable")]
+                public bool Disable;
 
                 /// <summary>Outputs a human friendly readable form of the fields and their relations contained in this object.</summary>
                 /// <returns>A string showing the relation between all the fields in a human friendly readable format.</returns>

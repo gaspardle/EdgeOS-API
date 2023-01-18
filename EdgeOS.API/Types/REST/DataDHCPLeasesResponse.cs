@@ -19,9 +19,28 @@ namespace EdgeOS.API.Types.REST
         {
             /// <summary>A dictionary that contains each of the DHCP servers and their leases.</summary>
             [JsonProperty(PropertyName = "dhcp-server-leases")]
-            public Dictionary<string, DataDHCPLeaseDetails> DHCPServerLeases;
+            public Dictionary<string, Dictionary<string, DataDHCPLeaseDetails>> DHCPServerLeases;
 
             /// <summary>An object that represents a particular DHCP server lease.</summary>
+            public class DataDHCPLeaseServer
+            {
+                /// <summary>The date of a specific lease expiry.</summary>
+                [JsonProperty(PropertyName = "expiration")]
+                public string Expiration;
+
+                /// <summary>The pool this lease corresponds to (appears to be a repetition of the DHCP server name).</summary>
+                [JsonProperty(PropertyName = "pool")]
+                public string Pool;
+
+                /// <summary>The MAC address of this particular DHCP server lease.</summary>
+                [JsonProperty(PropertyName = "mac")]
+                public string MAC;
+
+                /// <summary>The client supplied hostname for a DHCP server lease.</summary>
+                [JsonProperty(PropertyName = "client-hostname")]
+                public string ClientHostname;
+            }
+
             public class DataDHCPLeaseDetails
             {
                 /// <summary>The date of a specific lease expiry.</summary>
