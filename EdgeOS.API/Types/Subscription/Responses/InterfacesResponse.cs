@@ -31,6 +31,9 @@ namespace EdgeOS.API.Types.Subscription.Responses
             /// <summary>Whether this interface is virtual.</summary>
             public bool on_switch;
 
+            /// <summary>Whether this interface is a switch-port.</summary>
+            public bool is_switched_port;
+
             /// <summary>Whether this is an interface that can operate in either copper or in fiber mode.</summary>
             public bool is_combo;
 
