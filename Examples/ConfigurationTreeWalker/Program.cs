@@ -1,5 +1,7 @@
 ﻿using EdgeOS.API;
+using EdgeOS.API.Types.Configuration;
 using EdgeOS.API.Types.REST;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -11,13 +13,18 @@ namespace ConfigurationTreeWalker
 {
     class Program
     {
+        private static IConfiguration Configuration;
+
         static void Main(string[] args)
         {
             // Set the window title to something a bit more interesting.
             if (!Console.IsOutputRedirected) { Console.Title = "ConfigurationTreeWalker V0.1"; }
 
+            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            var config = Configuration.GetSection("EdgeOSApiCredentials");
+
             // Check the credentials are provided in the application's configuration file.
-            if (ConfigurationManager.AppSettings["Username"] == null || ConfigurationManager.AppSettings["Password"] == null || ConfigurationManager.AppSettings["Host"] == null)
+            if (config["Username"] == null || config["Password"] == null || config["Host"] == null)
             {
                 Console.WriteLine("Program cannot start, some credentials were missing in the program's configuration file.");
 
@@ -26,13 +33,13 @@ namespace ConfigurationTreeWalker
             }
 
             // EdgeOS requires logins and session heartbeats to be sent via the REST API.
-            using (WebClient webClient = new WebClient("https://" + ConfigurationManager.AppSettings["Host"] + "/"))
+            using (WebClient webClient = new WebClient("https://" + config["Host"] + "/"))
             {
                 // Ignore TLS certificate errors if there is a ".crt" file present that matches this host.
                 webClient.AllowLocalCertificates();
 
                 // Login to the router.
-                webClient.Login(ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"]);
+                webClient.Login(config["Username"], config["Password"]);
 
                 // If the folder exists, delete it then recreate it.
                 if (Directory.Exists("Configuration"))

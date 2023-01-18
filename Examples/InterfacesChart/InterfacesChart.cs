@@ -1,10 +1,13 @@
 ﻿using EdgeOS.API;
 using EdgeOS.API.Types.Subscription.Requests;
 using EdgeOS.API.Types.Subscription.Responses;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -12,6 +15,8 @@ namespace InterfacesChart
 {
     public partial class InterfacesChart : Form
     {
+        private IConfiguration Configuration;
+
         // EdgeOS requires logins and session heartbeats to be sent via the REST API.
         private WebClient webClient;
 
@@ -62,8 +67,11 @@ namespace InterfacesChart
         /// <param name="e">THe <see cref="EventArgs"/> instance containing the event data.</param>
         private void FormBandwidthChart_Load(object sender, EventArgs e)
         {
+            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            var config = Configuration.GetSection("EdgeOSApiCredentials");
+
             // Check the credentials are provided in the application's configuration file.
-            if (ConfigurationManager.AppSettings["Username"] == null || ConfigurationManager.AppSettings["Password"] == null || ConfigurationManager.AppSettings["Host"] == null)
+            if (config["Username"] == null || config["Password"] == null || config["Host"] == null)
             {
                 MessageBox.Show("Program cannot start, some credentials were missing in the program's configuration file.", "Missing Credentials", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
@@ -80,28 +88,36 @@ namespace InterfacesChart
             sessionHeartbeatTimer.Elapsed += (s, a) => webClient.Heartbeat();
 
             // The WebClient allows us to get a valid SessionID to then use with the StatsConnection.
-            webClient = new WebClient("https://" + ConfigurationManager.AppSettings["Host"] + "/");
+            webClient = new WebClient("https://" + config["Host"] + "/");
 
             // Ignore TLS certificate errors if there is a ".crt" file present that matches this host.
             webClient.AllowLocalCertificates();
 
             // Login to the Router.
-            webClient.Login(ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"]);
+            webClient.Login(config["Username"], config["Password"]);
 
             // Share a valid SessionID with a new StatsConnection object.
             statsConnection = new StatsConnection(webClient.SessionID);
 
             // Ignore TLS certificate errors if there is a ".crt" file present that matches this host.
             statsConnection.AllowLocalCertificates();
-
-            // Connect to the router.
-            statsConnection.ConnectAsync(new Uri("wss://" + ConfigurationManager.AppSettings["Host"] + "/ws/stats"));
-
+            
             // Setup an event handler for when data is received.
-            statsConnection.DataReceived += Connection_DataReceived;
+            statsConnection.DataReceived += (object s, SubscriptionDataEvent sde) => { this.Invoke(new Action<object, SubscriptionDataEvent>(Connection_DataReceived), new[] { s, sde }); };
 
             // Setup an event handler for when the connection state changes.
             statsConnection.ConnectionStatusChanged += Connection_ConnectionStatusChanged;
+
+            var thread = new Thread(StatsThreadStart)
+            {
+                IsBackground = true,
+            };
+            thread.Start();
+        }
+
+        private void StatsThreadStart()
+        {
+            statsConnection.ConnectAsync(new Uri("wss://" + Configuration.GetValue<string>("Host") + "/ws/stats"));
         }
 
         /// <summary>Method which when a StatsConnection is established requests Interface statistics.</summary>
@@ -222,5 +238,8 @@ namespace InterfacesChart
             }
             base.Dispose(disposing);
         }
+
     }
+
+    
 }

@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Web;
 
 namespace EdgeOS.API
 {
@@ -266,7 +265,7 @@ namespace EdgeOS.API
         public ConfigurationSettingsGetResponse ConfigurationSettingsGetSections(string requestContent)
         {
             // Send it to the Configuration Settings Get Partial end-point.
-            HttpResponseMessage httpResponse = _httpClient.GetAsync("/api/edge/partial.json?struct=" + HttpUtility.UrlEncode(requestContent)).Result;
+            HttpResponseMessage httpResponse = _httpClient.GetAsync("/api/edge/partial.json?struct=" + WebUtility.UrlEncode(requestContent)).Result;
 
             // Check the result is what we are expecting (and throw an exception if not).
             httpResponse.EnsureSuccessStatusCode();
@@ -301,7 +300,7 @@ namespace EdgeOS.API
                 for (int count = 0; count < requestPath.Length; count++)
                 {
                     if (count > 0) { queryString.Append('&'); }
-                    queryString.Append("node[]=" + HttpUtility.UrlEncode(requestPath[count]));
+                    queryString.Append("node[]=" + WebUtility.UrlEncode(requestPath[count]));
                 }
 
                 // Send it to the Configuration Settings Get Tree end-point.

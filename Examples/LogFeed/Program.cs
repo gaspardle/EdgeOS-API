@@ -1,6 +1,8 @@
 ﻿using EdgeOS.API;
+using EdgeOS.API.Types.Configuration;
 using EdgeOS.API.Types.Subscription.Requests;
 using EdgeOS.API.Types.Subscription.Responses;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Configuration;
 using System.Threading;
@@ -9,6 +11,8 @@ namespace LogFeed
 {
     class Program
     {
+        private static IConfiguration Configuration;
+
         // Signals when we want to quit.
         private static readonly ManualResetEvent WantToQuit = new ManualResetEvent(false);
 
@@ -23,8 +27,11 @@ namespace LogFeed
             // Set the window title to something a bit more interesting.
             if (!Console.IsOutputRedirected) { Console.Title = "LogFeed V0.1"; }
 
+            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            var config = Configuration.GetSection("EdgeOSApiCredentials");
+
             // Check the credentials are provided in the application's configuration file.
-            if (ConfigurationManager.AppSettings["Username"] == null || ConfigurationManager.AppSettings["Password"] == null || ConfigurationManager.AppSettings["Host"] == null)
+            if (config["Username"] == null || config["Password"] == null || config["Host"] == null)
             {
                 Console.WriteLine("Program cannot start, some credentials were missing in the program's configuration file.");
 
@@ -33,7 +40,7 @@ namespace LogFeed
             }
 
             // The WebClient allows us to get a valid SessionID to then use with the StatsConnection.
-            using (WebClient webClient = new WebClient("https://" + ConfigurationManager.AppSettings["Host"] + "/"))
+            using (WebClient webClient = new WebClient("https://" + config["Host"] + "/"))
             {
                 // This method will be invoked each time the timer has elapsed.
                 sessionHeartbeatTimer.Elapsed += (s, a) => webClient.Heartbeat();
@@ -42,7 +49,7 @@ namespace LogFeed
                 webClient.AllowLocalCertificates();
 
                 // Login to the router.
-                webClient.Login(ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"]);
+                webClient.Login(config["Username"], config["Password"]);
 
                 // Share a valid SessionID with a new StatsConnection object.
                 statsConnection = new StatsConnection(webClient.SessionID);
@@ -51,7 +58,7 @@ namespace LogFeed
                 statsConnection.AllowLocalCertificates();
 
                 // Connect to the router.
-                statsConnection.ConnectAsync(new Uri("wss://" + ConfigurationManager.AppSettings["Host"] + "/ws/stats"));
+                statsConnection.ConnectAsync(new Uri("wss://" + config["Host"] + "/ws/stats"));
 
                 // Setup an event handler for when data is received.
                 statsConnection.DataReceived += Connection_DataReceived;
